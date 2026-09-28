@@ -1,0 +1,23 @@
+# tenomi-bridge 設定の雛形
+# このファイルを config.toml にコピーし、内容を確認してください。
+# アドバタイズ名が違うときだけ name を実機に合わせてください。
+# コマンドライン引数（--port など）は本ファイルより優先されます。
+
+[serial]
+port = "/dev/ttyACM0"
+baud = 115200
+
+[ble]
+# address は空のままにします。空のときは name でスキャンします。
+# アドバタイズ名が違う Rover では name を実機に合わせてください。
+name = "micro:bit2_UART"
+address = ""
+scan_timeout = 15.0
+retry_min = 1.0
+retry_max = 30.0
+
+[bridge]
+echo_nus = false
+log_level = "INFO"          # DEBUG / INFO / WARNING / ERROR
+metrics_interval = 60.0     # 秒。0 で定期メトリクスログを出さない
+cooldown_ms = 1500

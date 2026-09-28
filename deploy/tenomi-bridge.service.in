@@ -1,0 +1,20 @@
+[Unit]
+Description=Tenomi BLE Bridge (DK USB serial to Rover NUS)
+After=bluetooth.service
+Wants=bluetooth.service
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=__USER__
+Group=__GROUP__
+SupplementaryGroups=bluetooth dialout
+WorkingDirectory=__ROOT__
+Environment=PYTHONUNBUFFERED=1
+ExecStart=__ROOT__/.venv/bin/tenomi-bridge --config __ROOT__/config.toml
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

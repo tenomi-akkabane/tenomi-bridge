@@ -1,0 +1,2 @@
+# Runtime deps are declared in pyproject.toml.
+# From the repo root: python3 -m pip install .

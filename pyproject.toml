@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tenomi-bridge"
+version = "0.1.0"
+description = "DK USB serial to Rover NUS BLE bridge"
+requires-python = ">=3.11"
+dependencies = [
+    "bleak>=0.22",
+    "pyserial>=3.5",
+]
+
+[project.scripts]
+tenomi-bridge = "tenomi_bridge.main:main"
+
+[tool.setuptools]
+packages = ["tenomi_bridge"]
+
+[tool.setuptools.package-dir]
+tenomi_bridge = "src"
