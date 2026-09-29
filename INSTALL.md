@@ -57,8 +57,8 @@ sudo usermod -aG bluetooth "$USER"
 ZIP を Raspberry Pi へコピーし、Pi のシェルで展開します。SSH でも、Pi 本体の端末でも構いません。ファイル名の版は ZIP に合わせて読み替えてください。
 
 ```bash
-unzip tenomi-bridge-main.zip
-cd tenomi-bridge-main
+unzip tenomi-bridge-1.0.0.zip
+cd tenomi-bridge
 ```
 
 インストールに使う主なファイルは、設定の雛形 `config.example.toml` と、導入スクリプト `deploy/install.sh` です。
@@ -170,8 +170,8 @@ sudo systemctl disable --now tenomi-bridge
 新しい ZIP を **別のディレクトリ** に展開します。旧展開の上書きはしません。旧環境の `config.toml` を利用する場合は、新しい展開ディレクトリへコピーします。
 
 ```bash
-unzip tenomi-bridge-main.zip -d tenomi-bridge-new   # 旧展開と同じ名前にならないよう、別のディレクトリへ展開
-cd tenomi-bridge-new/tenomi-bridge-main   # 新しい展開先
+unzip tenomi-bridge-1.0.0.zip -d tenomi-bridge-new   # 旧展開と同じ名前にならないよう、別のディレクトリへ展開
+cd tenomi-bridge-new/tenomi-bridge   # 新しい展開先
 # 必要なら: cp /path/to/old/config.toml ./config.toml
 bash deploy/install.sh
 ```
@@ -210,7 +210,7 @@ sudo systemctl daemon-reload
 
 | 症状                                                      | 確認                                                                                  |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `missing pyproject.toml`                                | 展開したディレクトリ（例: `tenomi-bridge-main/`）で `install.sh` を実行しているか                        |
+| `missing pyproject.toml`                                | 展開したディレクトリ（`tenomi-bridge/`）で `install.sh` を実行しているか                        |
 | `run as the Linux user that owns the venv, not as root` | `sudo bash deploy/install.sh` ではなく `bash deploy/install.sh` で実行しているか                |
 | `could not open port /dev/ttyACM0`                      | 制御側ボードを USB 接続しているか。`ls /dev/ttyACM*`。ユーザが `dialout` に入っているか                        |
 | `ble=down` / `scan_fail`                                | Rover の電源、`config.toml` の `name` がアドバタイズ名と一致しているか、`bluetoothctl show` の結果           |

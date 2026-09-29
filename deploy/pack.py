@@ -11,6 +11,7 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 _ROOT = Path(__file__).resolve().parent.parent
+_FOLDER = "tenomi-bridge"
 _FILES = [
     "pyproject.toml",
     "config.example.toml",
@@ -58,9 +59,11 @@ def _payload(path: Path) -> bytes:
 
 def pack(out_dir: Path) -> Path:
     version = _version()
-    name = f"tenomi-bridge-{version}"
     out_dir.mkdir(parents=True, exist_ok=True)
-    zip_path = out_dir / f"{name}.zip"
+    # The ZIP's own file name carries the version (for identification on the
+    # distribution page). The folder inside it is a fixed name so install
+    # instructions (`cd tenomi-bridge`) never need to change across releases.
+    zip_path = out_dir / f"tenomi-bridge-{version}.zip"
     missing = [rel for rel in _FILES if not (_ROOT / rel).is_file()]
     if missing:
         raise SystemExit("missing files:\n  " + "\n  ".join(missing))
@@ -68,7 +71,7 @@ def pack(out_dir: Path) -> Path:
     with ZipFile(zip_path, "w", compression=ZIP_DEFLATED) as zf:
         for rel in _FILES:
             src = _ROOT / rel
-            _add(zf, f"{name}/{rel}", src, _payload(src), _unix_mode(src))
+            _add(zf, f"{_FOLDER}/{rel}", src, _payload(src), _unix_mode(src))
 
     return zip_path
 
