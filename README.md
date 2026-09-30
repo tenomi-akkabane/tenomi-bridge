@@ -2,12 +2,12 @@
 
 TENOMI（ことばのいらない AI ロボット）の構成要素のひとつで、Raspberry Pi 上で常駐して動く中継サービスです。
 
-ジェスチャーを認識する STM32N6570-DK（以下 DK ボード）と、走行する Rover（micro:bit v2）の間をつなぎます。DK ボードの出力は USB シリアル、Rover の入力は Bluetooth Low Energy（BLE）で、形式が違うため直接はつながりません。tenomi-bridge がこの 2 つを橋渡しします。
+ジェスチャーを認識する Motion Detector（STM32N6570-DK）と、走行する Rover（micro:bit v2）の間をつなぎます。Motion Detectorの出力は USB シリアル、Rover の入力は Bluetooth Low Energy（BLE）で、形式が違うため直接はつながりません。tenomi-bridge がこの 2 つを橋渡しします。
 
 ## 構成
 
 ```
-[STM32N6570-DK]  ジェスチャー認識
+[Motion Detector]  ジェスチャー認識
       │  USB シリアル："motion: come_here" などの 1 行
       ▼
 [tenomi-bridge]  Raspberry Pi 上の常駐サービス（本リポジトリ）
@@ -20,11 +20,11 @@ TENOMI（ことばのいらない AI ロボット）の構成要素のひとつ�
 
 tenomi-bridge が行うのは次の 3 つです。
 
-1. DK ボードから USB シリアルで届く行のうち、`motion: <名前>` の行だけを読み取ります。それ以外の行（手のランドマークのデータなど）は読み捨て、無線には流しません。
+1. Motion Detectorから USB シリアルで届く行のうち、`motion: <名前>` の行だけを読み取ります。それ以外の行（手のランドマークのデータなど）は読み捨て、無線には流しません。
 2. ジェスチャーの名前を、Rover が実行できる走行指令（JSON）に変換します。
 3. BLE の Nordic UART Service（NUS）で Rover へ送ります。Rover の探索・接続・切断時の再接続も自動で行います。
 
-| DK ボードの出力 | 意味 | Rover へ送る JSON |
+| Motion Detectorの出力 | 意味 | Rover へ送る JSON |
 |-----------------|------|-------------------|
 | `motion: come_here` | 前進 | `{"type":"drive","left":50,"right":50,"duration":2}` |
 | `motion: go_away` | 後退 | `{"type":"drive","left":-50,"right":-50,"duration":2}` |
@@ -40,10 +40,10 @@ Raspberry Pi の起動時には systemd がサービスを自動で立ち上げ�
 
 - 内蔵 Bluetooth と USB ポートを備えた Raspberry Pi
 - Raspberry Pi OS 64-bit（Bookworm）、Python 3.11 以上
-- DK ボードと Raspberry Pi をつなぐ USB ケーブル
+- Motion Detectorと Raspberry Pi をつなぐ USB ケーブル
 - NUS でアドバタイズする Rover（micro:bit v2）
 
-USB 3.0 ポートを持つ機種（Raspberry Pi 4 / 5）では、USB 3.0 と Bluetooth（2.4 GHz）が干渉することがあります。DK ボードは USB 2.0 ポート（黒いコネクタ）へ接続してください。機種ごとの動作確認の状況は [INSTALL.md](INSTALL.md) を参照してください。
+USB 3.0 ポートを持つ機種（Raspberry Pi 4 / 5）では、USB 3.0 と Bluetooth（2.4 GHz）が干渉することがあります。Motion Detectorは USB 2.0 ポート（黒いコネクタ）へ接続してください。機種ごとの動作確認の状況は [INSTALL.md](INSTALL.md) を参照してください。
 
 ## 導入の流れ
 
@@ -73,7 +73,7 @@ USB メモリ経由でコピーしても構いません。
 2. **展開** — `unzip tenomi-bridge-main.zip` で展開し、`tenomi-bridge-main/` へ移動（§2）
 3. **設定** — `config.example.toml` を `config.toml` にコピー。多くの環境ではこのままで動作します（§3）
 4. **インストール** — `bash deploy/install.sh` で Python 仮想環境を作成（§4）
-5. **動作確認** — Rover の電源を入れ、DK ボードを接続したうえで `tenomi-bridge --config config.toml` を手動で起動し、接続を確認（§5）
+5. **動作確認** — Rover の電源を入れ、Motion Detectorを接続したうえで `tenomi-bridge --config config.toml` を手動で起動し、接続を確認（§5）
 6. **常駐化** — `bash deploy/install.sh --enable` で systemd に登録。以後は Raspberry Pi の起動時に自動で動きます（§6）
 
 更新・削除の手順とトラブルシュートも INSTALL.md にあります（§7・§8）。
@@ -85,7 +85,7 @@ USB メモリ経由でコピーしても構いません。
 | 設定 | 既定値 | 変更が必要な場合 |
 |------|--------|------------------|
 | `[ble] name` | `micro:bit2_UART` | Rover のアドバタイズ名が異なるとき |
-| `[serial] port` | `/dev/ttyACM0` | DK ボードが別のデバイスパスに見えるとき |
+| `[serial] port` | `/dev/ttyACM0` | Motion Detectorが別のデバイスパスに見えるとき |
 
 ## 稼働状況の確認
 
@@ -104,7 +104,7 @@ journalctl -u tenomi-bridge --since "1 hour ago" | grep metrics
 tenomi-bridge/
 ├── src/                          Python パッケージ（tenomi_bridge）
 │   ├── main.py                   起動と全体の流れ
-│   ├── serial_bridge.py          DK ボードからの USB シリアル受信
+│   ├── serial_bridge.py          Motion Detectorからの USB シリアル受信
 │   ├── protocol.py               motion: の読み取り、JSON への変換、送信間隔の制御
 │   ├── nus_central.py            BLE（NUS）での Rover の探索・接続・送信
 │   ├── config.py                 config.toml の読み込み
@@ -122,7 +122,7 @@ tenomi-bridge/
 
 | リポジトリ | 内容 |
 |------------|------|
-| [tenomi-motion](https://github.com/tenomi-akkabane/tenomi-motion) | DK ボード側（ジェスチャー認識） |
+| [tenomi-motion](https://github.com/tenomi-akkabane/tenomi-motion) | Motion Detector側（ジェスチャー認識） |
 | [tenomi-bridge](https://github.com/tenomi-akkabane/tenomi-bridge) | 本リポジトリ |
 | [tenomi-rover](https://github.com/tenomi-akkabane/tenomi-rover) | Rover 側（micro:bit v2） |
 

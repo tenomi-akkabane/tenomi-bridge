@@ -58,12 +58,13 @@ def _payload(path: Path) -> bytes:
 
 
 def pack(out_dir: Path) -> Path:
-    version = _version()
+    version = _version()  # still read from pyproject.toml; validates the file even though unused in the name
     out_dir.mkdir(parents=True, exist_ok=True)
-    # The ZIP's own file name carries the version (for identification on the
-    # distribution page). The folder inside it is a fixed name so install
-    # instructions (`cd tenomi-bridge`) never need to change across releases.
-    zip_path = out_dir / f"tenomi-bridge-{version}.zip"
+    # Neither the ZIP's file name nor the folder inside it carries the version,
+    # so install instructions (`unzip tenomi-bridge.zip`, `cd tenomi-bridge`)
+    # never need to change across releases. The version itself still lives in
+    # pyproject.toml inside the archive.
+    zip_path = out_dir / "tenomi-bridge.zip"
     missing = [rel for rel in _FILES if not (_ROOT / rel).is_file()]
     if missing:
         raise SystemExit("missing files:\n  " + "\n  ".join(missing))

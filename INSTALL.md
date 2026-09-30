@@ -57,7 +57,7 @@ sudo usermod -aG bluetooth "$USER"
 ZIP を Raspberry Pi へコピーし、Pi のシェルで展開します。SSH でも、Pi 本体の端末でも構いません。ファイル名の版は ZIP に合わせて読み替えてください。
 
 ```bash
-unzip tenomi-bridge-1.0.0.zip
+unzip tenomi-bridge.zip
 cd tenomi-bridge
 ```
 
@@ -170,7 +170,7 @@ sudo systemctl disable --now tenomi-bridge
 新しい ZIP を **別のディレクトリ** に展開します。旧展開の上書きはしません。旧環境の `config.toml` を利用する場合は、新しい展開ディレクトリへコピーします。
 
 ```bash
-unzip tenomi-bridge-1.0.0.zip -d tenomi-bridge-new   # 旧展開と同じ名前にならないよう、別のディレクトリへ展開
+unzip tenomi-bridge.zip -d tenomi-bridge-new   # 旧展開と同じ名前にならないよう、別のディレクトリへ展開
 cd tenomi-bridge-new/tenomi-bridge   # 新しい展開先
 # 必要なら: cp /path/to/old/config.toml ./config.toml
 bash deploy/install.sh
